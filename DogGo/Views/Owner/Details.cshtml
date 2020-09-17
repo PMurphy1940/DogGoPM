@@ -47,10 +47,10 @@
             @Html.DisplayFor(model => model.Email)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.dogs)
+            @Html.DisplayNameFor(model => model.Dogs)
         </dt>
-        <ul>
-            @foreach (Dog dog in Model.dogs)
+        <ul >
+            @foreach (Dog dog in Model.Dogs)
             {
                 <li>@dog.Name (@dog.Breed)</li>
             }
