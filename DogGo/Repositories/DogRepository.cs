@@ -31,7 +31,15 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        SELECT Id, [Name], OwnerId, Breed, Notes, ImageUrl FROM Dog
+                        SELECT d.Id, 
+                               d.Name, 
+                               d.OwnerId, 
+                               d.Breed, 
+                               d.Notes, 
+                               d.ImageUrl, 
+                               o.Name AS 'Owner Name'
+                            FROM Dog d
+                            Join Owner o On d.OwnerId = o.Id
                     ";
 
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -39,6 +47,9 @@ namespace DogGo.Repositories
                     List<Dog> dogs = new List<Dog>();
                     while (reader.Read())
                     {
+                        Owner owner = new Owner();
+                        owner.Name = reader.GetString(reader.GetOrdinal("Owner Name"));
+
                         string notes = null;
                         string image = null;
                         if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
@@ -56,7 +67,8 @@ namespace DogGo.Repositories
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             Notes = notes,
                             ImageUrl = image,
-                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId"))
+                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                            Owner = owner
                         };
 
                         dogs.Add(aDog);
@@ -78,8 +90,16 @@ namespace DogGo.Repositories
                 {
                     
                     cmd.CommandText = @"
-                        SELECT Id, Name, OwnerId, Breed, Notes, ImageUrl FROM Dog
-                           Where Id = @id";
+                        SELECT d.Id, 
+                               d.Name, 
+                               d.OwnerId, 
+                               d.Breed, 
+                               d.Notes, 
+                               d.ImageUrl, 
+                               o.Name AS 'Owner Name'
+                            FROM Dog d
+                            Join Owner o On d.OwnerId = o.Id                        
+                           Where d.Id = @id";
 
                     cmd.Parameters.AddWithValue("@id", id);
 
@@ -87,6 +107,9 @@ namespace DogGo.Repositories
 
                     if (reader.Read())
                     {
+                        Owner owner = new Owner();
+                        owner.Name = reader.GetString(reader.GetOrdinal("Owner Name"));
+
                         string notes = null;
                         string image = null;
                         if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
@@ -104,7 +127,8 @@ namespace DogGo.Repositories
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
                             Notes = notes,
                             ImageUrl = image,
-                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId"))
+                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
+                            Owner = owner
                         };
 
                         reader.Close();
