@@ -2,7 +2,7 @@
 
 @{ ViewData["Title"] = "Profile"; }
 <div>
-    <h1 class="mb-4">@Model.Walker.Name</h1>
+    <h1 class="mb-4">Walker Profile</h1>
 
     <section class="container">
         <img style="width:100px;float:left;margin-right:20px"
@@ -33,7 +33,9 @@
             <th>
                 Client
             </th>
+            <th>
                 Dog
+            </th>
             <th>
                 Duration
             </th>
@@ -44,7 +46,10 @@
 @foreach (var item in Model.Walks) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Date)
+                @{
+                    DateTime date = item.Date;
+                    string shortDate = date.ToShortDateString();
+                } @shortDate
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Dog.Owner.Name)
@@ -53,7 +58,18 @@
                 @Html.DisplayFor(modelItem => item.Dog.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Duration)
+                @{ 
+                    TimeSpan time = TimeSpan.FromSeconds(item.Duration);
+                    string str = time.ToString(@"hh\:mm\:ss\:fff");
+                    string[] splitTime = str.Split(":");
+                    string timeOutput = splitTime[0] + "hr " + splitTime[1] + "min";
+                    
+                    if (splitTime[0] == "00")
+                    {
+                        timeOutput = splitTime[1] + "min";
+                    }
+                }
+                @timeOutput
             </td>
         </tr>
 }
@@ -62,7 +78,17 @@
         </section>
 
         <section class="col-lg-4 col-md-8 container mt-5">
-            <h1>Total Walk Time:@()</h1>
+            @{
+
+                string[] splitTotalWalkTime = Model.TotalWalkTime.Split(":");
+                string totalWalkTimeOutput = splitTotalWalkTime[0].TrimStart('0') + "hr " + splitTotalWalkTime[1] + "min";
+                
+                if (splitTotalWalkTime[0] == "00")
+                {
+                    totalWalkTimeOutput = splitTotalWalkTime[1] + "min";
+                }
+            }            
+            <h2>Total Walk Time: <strong>@totalWalkTimeOutput</strong></h2>
 
         </section>
     </div>
