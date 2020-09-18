@@ -73,7 +73,7 @@ namespace DogGo.Repositories
                 {
                     //List<Dog> dogs = new List<Dog>();
                     Owner owner = new Owner();
-                    cmd.CommandText = @"
+                    /*cmd.CommandText = @"
                         SELECT Name, Breed, Notes, ImageUrl FROM DOG 
                         WHERE OwnerId = @id
                     ";
@@ -105,7 +105,7 @@ namespace DogGo.Repositories
                         owner.Dogs.Add(d);
                     }
                     reader.Close();
-
+*/
 
                     cmd.CommandText = @"
                         SELECT o.Id, o.[Name], o.Email, o.Phone, o.Address, o.NeighborhoodId, n.Name AS Neighborhood FROM Owner o
@@ -113,9 +113,9 @@ namespace DogGo.Repositories
                             LEFT JOIN Dog d On d.OwnerId = o.Id
                            Where o.Id = @id";
 
-                   
+                    cmd.Parameters.AddWithValue("@id", id);
 
-                    reader = cmd.ExecuteReader();
+                    SqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
@@ -183,6 +183,8 @@ namespace DogGo.Repositories
                 }
             }
         }
+
+
 
         public void AddOwner(Owner owner)
         {
