@@ -217,24 +217,26 @@ namespace DogGo.Repositories
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
-                    int walkLength = walk.Duration * 60;
-                    cmd.CommandText = @"
+                foreach(int dogId in walk.DogId) {
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        int walkLength = walk.Duration * 60;
+                        cmd.CommandText = @"
                     INSERT INTO Walks (Date, Duration, WalkerId, DogId)
                     OUTPUT INSERTED.ID
                     VALUES (@Date, @Duration, @WalkerId, @DogId);
                 ";
 
-                    cmd.Parameters.AddWithValue("@Date", walk.Date);
-                    cmd.Parameters.AddWithValue("@Duration", walkLength);
-                    cmd.Parameters.AddWithValue("@WalkerId", walk.WalkerId);
-                    cmd.Parameters.AddWithValue("@DogId", walk.DogId);
-                    
+                        cmd.Parameters.AddWithValue("@Date", walk.Date);
+                        cmd.Parameters.AddWithValue("@Duration", walkLength);
+                        cmd.Parameters.AddWithValue("@WalkerId", walk.WalkerId);
+                        cmd.Parameters.AddWithValue("@DogId", dogId);
 
-                    int id = (int)cmd.ExecuteScalar();
 
-                    walk.Id = id;
+                        int id = (int)cmd.ExecuteScalar();
+
+                        walk.Id = id;
+                    }
                 }
             }
         }
