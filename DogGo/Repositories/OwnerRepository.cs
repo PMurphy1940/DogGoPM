@@ -212,6 +212,32 @@ namespace DogGo.Repositories
             }
         }
 
+        public void AddWalk(Walk walk)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    int walkLength = walk.Duration * 60;
+                    cmd.CommandText = @"
+                    INSERT INTO Walks (Date, Duration, WalkerId, DogId)
+                    OUTPUT INSERTED.ID
+                    VALUES (@Date, @Duration, @WalkerId, @DogId);
+                ";
+
+                    cmd.Parameters.AddWithValue("@Date", walk.Date);
+                    cmd.Parameters.AddWithValue("@Duration", walkLength);
+                    cmd.Parameters.AddWithValue("@WalkerId", walk.WalkerId);
+                    cmd.Parameters.AddWithValue("@DogId", walk.DogId);
+                    
+
+                    int id = (int)cmd.ExecuteScalar();
+
+                    walk.Id = id;
+                }
+            }
+        }
         public void UpdateOwner(Owner owner)
         {
             using (SqlConnection conn = Connection)

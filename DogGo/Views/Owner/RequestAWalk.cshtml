@@ -1,0 +1,57 @@
+﻿@model DogGo.Models.ViewModels.WalkFormViewModel
+
+@{
+    ViewData["Title"] = "RequestWalk";
+}
+
+<h1>Walk Request Form</h1>
+
+<h4>@Model.Owner.Name</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="RequestAWalk">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Walk.Date" class="control-label">Enter a date for the walk</label>
+                <input asp-for="Walk.Date" class="form-control" />
+                <span asp-validation-for="Walk.Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Walk.Duration" class="control-label">How long would you like the walk to be (in minutes)?</label>
+                <input asp-for="Walk.Duration" class="form-control" />
+                <span asp-validation-for="Walk.Duration" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Walk.DogId" class="control-label">Select a dog to walk</label>
+                <select asp-for="Walk.DogId" class="form-control">
+                    <option value="">Select A Dog</option>
+                    @foreach (Dog dog in Model.Dogs)
+                    {
+                        <option value="@dog.Id">@dog.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Walk.DogId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Walk.WalkerId" class="control-label">Select a dog walker</label>
+                <select asp-for="Walk.WalkerId" class="form-control">
+                    <option value="">Select A Walker</option>
+                    @foreach (Walker walker in Model.WalkersInNeighborhood)
+                    {
+                        <option value="@walker.Id">@walker.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Walk.WalkerId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="RequestAWalk" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    RequestWalk
+    <a asp-action="Index">Back to List</a>
+</div>

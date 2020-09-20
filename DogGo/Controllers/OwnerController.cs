@@ -37,16 +37,45 @@ namespace DogGo.Controllers
             List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
 
+
             ProfileViewModel vm = new ProfileViewModel()
             {
                 Owner = owner,
                 Dogs = dogs,
                 Walkers = walkers
             };
+            return View(vm);
+        }
+        public ActionResult RequestAWalk(int id)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
+            List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+            WalkFormViewModel vm = new WalkFormViewModel()
+            {
+                Owner = owner,
+                Dogs = dogs,
+                WalkersInNeighborhood = walkers
+            };
 
             return View(vm);
         }
-
+        // POST: OwnersController/RequestWalk
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RequestAWalk(WalkFormViewModel vm)
+        {
+            try
+            {
+               _ownerRepo.AddWalk(vm.Walk);
+                return RedirectToAction("Index", "Owner");
+            }
+            catch
+            {
+                return View(vm);
+            }
+        }
         // GET: OwnersController/Create
         public ActionResult Create()
         {
