@@ -1,7 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using DogGo.Models;
 using DogGo.Models.ViewModels;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -13,6 +18,7 @@ namespace DogGo.Controllers
         private readonly DogRepository _dogRepo;
         private readonly WalkerRepository _walkerRepo;
         private readonly NeighborhoodRepository _neighborhoodRepo;
+        private readonly WalksRepository _walksRepo;
 
         // ASP.NET will give us an instance of our Owner Repository. This is called "Dependency Injection"
         public OwnerController(IConfiguration config)
@@ -21,19 +27,80 @@ namespace DogGo.Controllers
             _dogRepo = new DogRepository(config);
             _walkerRepo = new WalkerRepository(config);
             _neighborhoodRepo = new NeighborhoodRepository(config);
+            _walksRepo = new WalksRepository(config);
         }
         // GET: OwnersController
+
         public ActionResult Index()
         {
-            List<Owner> owners = _ownerRepo.GetAllOwners();
+            try
+            {
+                int ownerId = GetCurrentUserId();
+                Owner owner = _ownerRepo.GetOwnerById(ownerId);
 
-            return View(owners);
+                List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
+                List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+
+                ProfileViewModel vm = new ProfileViewModel()
+                {
+                    Owner = owner,
+                    Dogs = dogs,
+                    Walkers = walkers
+                };
+                return View(vm);
+            }
+            catch
+            {
+                return RedirectToAction("Create", "Owner");
+            }
+
+            
+        }
+
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(LoginViewModel viewModel)
+        {
+            Owner owner = _ownerRepo.GetOwnerByEmail(viewModel.Email);
+
+            if (owner == null)
+            {
+                return Unauthorized();
+            }
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
+        new Claim(ClaimTypes.Email, owner.Email),
+        new Claim(ClaimTypes.Role, "DogOwner"),
+    };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToAction("Index", "Dog");
         }
 
         // GET: OwnersController/Details/5
+        [Authorize]
         public ActionResult Details(int id)
         {
+            int ownerId = GetCurrentUserId();
             Owner owner = _ownerRepo.GetOwnerById(id);
+
+            if (ownerId != owner.Id)
+            {
+                return NotFound();
+            }
             List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
 
@@ -46,9 +113,39 @@ namespace DogGo.Controllers
             };
             return View(vm);
         }
+
+        [Authorize]
+        public ActionResult ViewWalks(int id)
+        {
+
+            Owner owner = _ownerRepo.GetOwnerById(id);
+
+            int ownerId = GetCurrentUserId();
+            if (ownerId != owner.Id)
+            {
+                return NotFound();
+            }
+            List<Walk> walks = _walksRepo.GetWalksByOwnerId(id);
+
+            WalkViewModel vm = new WalkViewModel()
+            {
+                Walks = walks,
+                Owner = owner
+            };
+            return View(vm);
+        }
+
+        [Authorize]
         public ActionResult RequestAWalk(int id)
         {
+
             Owner owner = _ownerRepo.GetOwnerById(id);
+
+            int ownerId = GetCurrentUserId();
+            if (ownerId != owner.Id)
+            {
+                return NotFound();
+            }
             List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
             List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
 
@@ -107,11 +204,14 @@ namespace DogGo.Controllers
         }
 
         // GET: OwnersController/Edit/5
+        [Authorize]
         public ActionResult Edit(int id)
         {
             Owner owner = _ownerRepo.GetOwnerById(id);
-
-            if (owner == null)
+            //Verify the edit is only for the current owner
+            int ownerId = GetCurrentUserId();
+           
+            if (owner == null || ownerId != owner.Id)
             {
                 return NotFound();
             }
@@ -132,6 +232,8 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, Owner owner)
         {
+            
+
             try
             {
                 _ownerRepo.UpdateOwner(owner);
@@ -145,9 +247,15 @@ namespace DogGo.Controllers
         }
 
         // GET: OwnersController/Delete/5
+        [Authorize]
         public ActionResult Delete(int id)
         {
             Owner ownerToDelete = _ownerRepo.GetOwnerById(id);
+            int ownerId = GetCurrentUserId();
+            if (ownerId != ownerToDelete.Id)
+            {
+                return NotFound();
+            }
             return View(ownerToDelete);
         }
 
@@ -165,6 +273,41 @@ namespace DogGo.Controllers
             {
                 return View(owner);
             }
+        }
+        // GET: OwnersController/Delete/5
+/*        public ActionResult DeleteWalks(int id)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            List<Walk> walks = _walksRepo.GetWalksByOwnerId(id);
+
+            WalkViewModel vm = new WalkViewModel()
+            {
+                Walks = walks,
+                Owner = owner
+            };
+            return View(vm);
+        }*/
+
+        // POST: OwnersController/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteWalk( WalkViewModel vm)
+        {
+          
+            try
+            {
+                _walksRepo.DeleteWalks(vm);
+                return RedirectToAction("Index", "Owner");
+            }
+            catch
+            {
+                return View(vm);
+            }
+        }
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
         }
     }
 }

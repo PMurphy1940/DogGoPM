@@ -80,15 +80,26 @@
         <section class="col-lg-4 col-md-8 container mt-5">
             @{
 
-                string[] splitTotalWalkTime = Model.TotalWalkTime.Split(":");
+                string[] splitTotalWalkTime = Model.TotalCompletedWalkTime.Split(":");
                 string totalWalkTimeOutput = splitTotalWalkTime[0].TrimStart('0') + "hr " + splitTotalWalkTime[1] + "min";
-                
+
                 if (splitTotalWalkTime[0] == "00")
                 {
                     totalWalkTimeOutput = splitTotalWalkTime[1] + "min";
                 }
-            }            
-            <h2>Total Walk Time: <strong>@totalWalkTimeOutput</strong></h2>
+            }
+            <h2>Total Completed Walk Time: <strong>@totalWalkTimeOutput</strong></h2>
+            @{
+
+                string[] splitUpcomingWalkTime = Model.TotalUpcomingWalkTime.Split(":");
+                string upcomingWalkTimeOutput = splitUpcomingWalkTime[0].TrimStart('0') + "hr " + splitUpcomingWalkTime[1] + "min";
+
+                if (splitUpcomingWalkTime[0] == "00")
+                {
+                    upcomingWalkTimeOutput = splitUpcomingWalkTime[1] + "min";
+                }
+            }
+            <h2>Total Upcoming Walk Time: <strong>@upcomingWalkTimeOutput</strong></h2>
 
         </section> 
     </div>
