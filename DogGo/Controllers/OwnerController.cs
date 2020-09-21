@@ -13,6 +13,7 @@ namespace DogGo.Controllers
         private readonly DogRepository _dogRepo;
         private readonly WalkerRepository _walkerRepo;
         private readonly NeighborhoodRepository _neighborhoodRepo;
+        private readonly WalksRepository _walksRepo;
 
         // ASP.NET will give us an instance of our Owner Repository. This is called "Dependency Injection"
         public OwnerController(IConfiguration config)
@@ -21,6 +22,7 @@ namespace DogGo.Controllers
             _dogRepo = new DogRepository(config);
             _walkerRepo = new WalkerRepository(config);
             _neighborhoodRepo = new NeighborhoodRepository(config);
+            _walksRepo = new WalksRepository(config);
         }
         // GET: OwnersController
         public ActionResult Index()
@@ -46,6 +48,20 @@ namespace DogGo.Controllers
             };
             return View(vm);
         }
+
+        public ActionResult ViewWalks(int id)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);        
+            List<Walk> walks = _walksRepo.GetWalksByOwnerId(id);
+
+            WalkViewModel vm = new WalkViewModel()
+            {
+                Walks = walks,
+                Owner = owner
+            };
+            return View(vm);
+        }
+
         public ActionResult RequestAWalk(int id)
         {
             Owner owner = _ownerRepo.GetOwnerById(id);
@@ -164,6 +180,36 @@ namespace DogGo.Controllers
             catch
             {
                 return View(owner);
+            }
+        }
+        // GET: OwnersController/Delete/5
+/*        public ActionResult DeleteWalks(int id)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            List<Walk> walks = _walksRepo.GetWalksByOwnerId(id);
+
+            WalkViewModel vm = new WalkViewModel()
+            {
+                Walks = walks,
+                Owner = owner
+            };
+            return View(vm);
+        }*/
+
+        // POST: OwnersController/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteWalk(int id, WalkViewModel vm)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            try
+            {
+                _walksRepo.DeleteWalks(vm);
+                return RedirectToAction("Index", "Owner");
+            }
+            catch
+            {
+                return View(vm);
             }
         }
     }
