@@ -78,6 +78,7 @@ namespace DogGo.Controllers
         new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
         new Claim(ClaimTypes.Email, owner.Email),
         new Claim(ClaimTypes.Role, "DogOwner"),
+        new Claim(ClaimTypes.Role, "LoggedIn"),
     };
 
             var claimsIdentity = new ClaimsIdentity(
