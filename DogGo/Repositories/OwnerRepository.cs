@@ -73,7 +73,7 @@ namespace DogGo.Repositories
                 {
                     //List<Dog> dogs = new List<Dog>();
                     Owner owner = new Owner();
-                    cmd.CommandText = @"
+                    /*cmd.CommandText = @"
                         SELECT Name, Breed, Notes, ImageUrl FROM DOG 
                         WHERE OwnerId = @id
                     ";
@@ -105,7 +105,7 @@ namespace DogGo.Repositories
                         owner.Dogs.Add(d);
                     }
                     reader.Close();
-
+*/
 
                     cmd.CommandText = @"
                         SELECT o.Id, o.[Name], o.Email, o.Phone, o.Address, o.NeighborhoodId, n.Name AS Neighborhood FROM Owner o
@@ -113,9 +113,9 @@ namespace DogGo.Repositories
                             LEFT JOIN Dog d On d.OwnerId = o.Id
                            Where o.Id = @id";
 
-                   
+                    cmd.Parameters.AddWithValue("@id", id);
 
-                    reader = cmd.ExecuteReader();
+                    SqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
@@ -184,6 +184,8 @@ namespace DogGo.Repositories
             }
         }
 
+
+
         public void AddOwner(Owner owner)
         {
             using (SqlConnection conn = Connection)
@@ -210,6 +212,34 @@ namespace DogGo.Repositories
             }
         }
 
+        public void AddWalk(Walk walk)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                foreach(int dogId in walk.DogId) {
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        int walkLength = walk.Duration * 60;
+                        cmd.CommandText = @"
+                    INSERT INTO Walks (Date, Duration, WalkerId, DogId)
+                    OUTPUT INSERTED.ID
+                    VALUES (@Date, @Duration, @WalkerId, @DogId);
+                ";
+
+                        cmd.Parameters.AddWithValue("@Date", walk.Date);
+                        cmd.Parameters.AddWithValue("@Duration", walkLength);
+                        cmd.Parameters.AddWithValue("@WalkerId", walk.WalkerId);
+                        cmd.Parameters.AddWithValue("@DogId", dogId);
+
+
+                        int id = (int)cmd.ExecuteScalar();
+
+                        walk.Id = id;
+                    }
+                }
+            }
+        }
         public void UpdateOwner(Owner owner)
         {
             using (SqlConnection conn = Connection)
