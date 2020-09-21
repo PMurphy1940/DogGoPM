@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace DogGo.Repositories
 {
+
     public class OwnerRepository : IOwnerRepository
     {
         private readonly IConfiguration _config;

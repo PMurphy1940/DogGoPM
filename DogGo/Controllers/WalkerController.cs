@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 using DogGo.Models;
 using DogGo.Models.ViewModels;
 using DogGo.Repositories;
@@ -29,9 +30,20 @@ namespace DogGo.Controllers
         // GET: Walkers
         public ActionResult Index()
         {
-            List<Walker> walkers = _walkerRepo.GetAllWalkers();
 
-            return View(walkers);
+            try
+            {
+                int ownerId = GetCurrentUserId();
+                Owner owner = _ownerRepo.GetOwnerById(ownerId);
+                List<Walker> walkersInNeighborhood = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+                return View(walkersInNeighborhood);
+            }
+            catch
+            {
+                List<Walker> walkers = _walkerRepo.GetAllWalkers();
+
+                return View(walkers);
+            }
         }
 
         // GET: Walkers/Details/5
@@ -117,6 +129,11 @@ namespace DogGo.Controllers
             {
                 return View();
             }
+        }
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
         }
     }
 }
