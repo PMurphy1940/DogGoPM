@@ -303,17 +303,17 @@ namespace DogGo.Controllers
         // POST: OwnersController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteWalk( WalkViewModel vm)
+        public ActionResult DeleteWalk(int[] deleteWalkId)
         {
           
             try
             {
-                _walksRepo.DeleteWalks(vm);
+                _walksRepo.DeleteWalks(deleteWalkId);
                 return RedirectToAction("Index", "Owner");
             }
             catch
             {
-                return View(vm);
+                return null;
             }
         }
         private int GetCurrentUserId()

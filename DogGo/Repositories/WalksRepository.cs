@@ -128,12 +128,12 @@ namespace DogGo.Repositories
             }
         }
 
-            public void DeleteWalks(WalkViewModel vm)
+            public void DeleteWalks(int[] deleteWalkId)
         {
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
-                foreach (int id in vm.deleteWalkId)
+                foreach (int id in deleteWalkId)
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
