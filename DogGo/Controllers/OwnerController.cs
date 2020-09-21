@@ -91,6 +91,17 @@ namespace DogGo.Controllers
             return RedirectToAction("Index", "Dog");
         }
 
+       //
+        public ActionResult LogOut()
+        {
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
         // GET: OwnersController/Details/5
         [Authorize]
         public ActionResult Details(int id)

@@ -32,15 +32,23 @@
                         </li>
                         @if (User.IsInRole("DogOwner"))
                         {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Dog" asp-action="Index">Dogs</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Dog" asp-action="Index">Dogs</a>
+                            </li>
                         }
                         @if (!User.IsInRole("LoggedIn"))
                         {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Owner" asp-action="Login">Login</a>
-                        </li>}
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Owner" asp-action="Login">Login</a>
+                            </li>
+}
+                        @if (User.IsInRole("LoggedIn"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Owner" asp-action="LogOut">LogOut</a>
+                            </li>
+}
+
                     </ul>
                 </div>
             </div>
