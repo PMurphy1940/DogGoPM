@@ -8,3 +8,4 @@
                           Left Join Walker wa ON wa.id = w.WalkerId
                           LEFT JOIN Owner o ON d.OwnerId = o.Id
                         WHERE o.id = 1
+                      

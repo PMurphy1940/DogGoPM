@@ -137,7 +137,7 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                            DELETE FROM Owner
+                            DELETE FROM Walks
                             WHERE Id = @id
                         ";
 
