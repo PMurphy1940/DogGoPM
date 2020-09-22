@@ -10,6 +10,10 @@
 
     <hr class="mt-5" />
     <div class="clearfix"></div>
+    <div class="form-group">
+
+        <a asp-action="RequestAWalk" asp-route-id="@Model.Owner.Id" class="btn btn-primary">Request a walk</a>
+    </div>
 
     <div class="row">
         <section class="col-8 container mt-5">
@@ -54,58 +58,55 @@
             </div>
         </section>
         <section class="col-8 container mt-5">
-            <h1 class="text-left">Upcoming Walks</h1>
-            
-            <div class="form-group">
-                <input type="submit" value="RequestAWalk" class="btn btn-primary" />
-            </div>
-            <div class="row">
-                @foreach (Walk walk in Model.UpcomingWalks)
-                {
-
-                    <div class="card m-4" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <div>
-                                <label class="font-weight-bold">Name:</label>
-                                <span>@walk.Dog.Name</span>
-                            </div>
-                            <div>
-                                <label class="font-weight-bold">Date:</label>
-                                <span>@walk.Date</span>
-                            </div>
-                            <div>
-                                <label class="font-weight-bold">Duration:</label>
-                                @{
-                                    TimeSpan time = TimeSpan.FromSeconds(walk.Duration);
-                                    string str = time.ToString(@"hh\:mm\:ss\:fff");
-                                    string[] splitTime = str.Split(":");
-                                    string timeOutput = splitTime[0] + "hr " + splitTime[1] + "min";
-
-                                    if (splitTime[0] == "00")
-                                    {
-                                        timeOutput = splitTime[1] + "min";
-                                    }
-                                }
-                                <p>@timeOutput</p>
-                            </div>
-                            <div>
-                                <label class="font-weight-bold">Walker:</label>
-                                <p>@walk.Walker.Name</p>
-                            </div>
-                            <div>
-                                <input type="checkbox" value="@walk.Id">
-                                <label asp-for="deleteWalkId">Delete this scheduled walk</label>
-                                <span asp-validation-for="@walk.Id" class="text-danger"></span>
-                            </div>
-
-                        </div>
-                    </div>
-
-                }
-            </div>
             <form asp-action="DeleteWalk">
-                <input type="submit" value="DeleteWalk" class="btn btn-danger" />
+                <h1 class="text-left">Upcoming Walks</h1>
+
+                <div class="row">
+                    @for (int i = 0; i < Model.UpcomingWalks.Count; i++)
+                    {
+                        Walk walk = Model.UpcomingWalks[i];
+                        <div class="card m-4" style="width: 18rem;">
+
+                            <div class="card-body">
+                                <div>
+                                    <label class="font-weight-bold">Name:</label>
+                                    <span>@walk.Dog.Name</span>
+                                </div>
+                                <div>
+                                    <label class="font-weight-bold">Date:</label>
+                                    <span>@walk.Date</span>
+                                </div>
+                                <div>
+                                    <label class="font-weight-bold">Duration:</label>
+                                    @{
+                                        TimeSpan time = TimeSpan.FromSeconds(walk.Duration);
+                                        string str = time.ToString(@"hh\:mm\:ss\:fff");
+                                        string[] splitTime = str.Split(":");
+                                        string timeOutput = splitTime[0] + "hr " + splitTime[1] + "min";
+
+                                        if (splitTime[0] == "00")
+                                        {
+                                            timeOutput = splitTime[1] + "min";
+                                        }
+                                    }
+                                    <p>@timeOutput</p>
+                                </div>
+                                <div>
+                                    <label class="font-weight-bold">Walker:</label>
+                                    <p>@walk.Walker.Name</p>
+                                </div>
+                                <div>
+                                    <input type="checkbox" name="deleteWalkId" value="@walk.Id">
+                                    <label asp-for="deleteWalkId[i]">Delete this scheduled walk</label>
+                                    <span asp-validation-for="@walk.Id" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                </div>
+
+                <input type="submit" asp-for="deleteWalkId" value="Delete Walks" class="btn btn-danger" />
                 <a asp-action="Index">Back to List</a>
             </form>
         </section>

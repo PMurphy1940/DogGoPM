@@ -91,6 +91,17 @@ namespace DogGo.Controllers
             return RedirectToAction("Index", "Dog");
         }
 
+       //
+        public ActionResult LogOut()
+        {
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                Response.Cookies.Delete(cookie);
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
         // GET: OwnersController/Details/5
         [Authorize]
         public ActionResult Details(int id)
@@ -292,17 +303,17 @@ namespace DogGo.Controllers
         // POST: OwnersController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteWalk( WalkViewModel vm)
+        public ActionResult DeleteWalk(int[] deleteWalkId)
         {
           
             try
             {
-                _walksRepo.DeleteWalks(vm);
+                _walksRepo.DeleteWalks(deleteWalkId);
                 return RedirectToAction("Index", "Owner");
             }
             catch
             {
-                return View(vm);
+                return null;
             }
         }
         private int GetCurrentUserId()
