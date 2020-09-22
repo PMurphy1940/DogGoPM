@@ -27,9 +27,9 @@ namespace DogGo.Controllers
         
         public ActionResult Index()
         {
-            int ownerId = GetCurrentUserId();
+            int currentUserId = GetCurrentUserId();
 
-            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(ownerId);
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(currentUserId);
 
             return View(dogs);
         }
@@ -39,9 +39,9 @@ namespace DogGo.Controllers
         public ActionResult Details(int id)
         {
             Dog dog = _dogRepo.GetDogById(id);
-            int ownerId = GetCurrentUserId();
+            int currentUserId = GetCurrentUserId();
 
-            if (dog == null || dog.OwnerId != ownerId)
+            if (dog == null || dog.OwnerId != currentUserId)
             {
                 return NotFound();
             }
@@ -81,9 +81,9 @@ namespace DogGo.Controllers
         public ActionResult Edit(int id)
         {
             Dog dog = _dogRepo.GetDogById(id);
-            int ownerId = GetCurrentUserId();
+            int currentUserId = GetCurrentUserId();
 
-            if (dog == null || dog.OwnerId != ownerId)
+            if (dog == null || dog.OwnerId != currentUserId)
             {
                 return NotFound();
             }
@@ -95,8 +95,16 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, Dog dog)
         {
+            int currentUserId = GetCurrentUserId();
+            if (id != dog.Id || dog.OwnerId != currentUserId)
+            {
+                return View(dog);
+            }
+
             try
             {
+                // update the dogs OwnerId to the current user's Id 
+                dog.OwnerId = currentUserId;
                 _dogRepo.UpdateDog(dog);
 
                 return RedirectToAction(nameof(Index));
@@ -112,9 +120,9 @@ namespace DogGo.Controllers
         public ActionResult Delete(int id)
         {
             Dog dogToDelete = _dogRepo.GetDogById(id);
-            int ownerId = GetCurrentUserId();
+            int currentUserId = GetCurrentUserId();
 
-            if (dogToDelete.OwnerId != ownerId)
+            if (dogToDelete.OwnerId != currentUserId)
             {
                 return NotFound();
             }
@@ -127,6 +135,12 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, Dog dog)
         {
+            int currentUserId = GetCurrentUserId();
+            if (id != dog.Id || dog.OwnerId != currentUserId)
+            {
+                return View(dog);
+            }
+
             try
             {
                 _dogRepo.DeleteDog(id);
