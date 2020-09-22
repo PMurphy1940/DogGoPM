@@ -71,16 +71,22 @@ namespace DogGo.Controllers
         // GET: WalkerController/Create
         public ActionResult Create()
         {
-            return View();
+            var vm = new WalkerFormViewModel()
+            {
+                walker = new Walker(),
+                neighborhoods = _neighborhoodRepo.GetAll()
+            };
+            return View(vm);
         }
 
         // POST: WalkerController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Walker walker)
         {
             try
             {
+                _walkerRepo.AddWalker(walker);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -92,16 +98,23 @@ namespace DogGo.Controllers
         // GET: WalkerController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var vm = new WalkerFormViewModel()
+            {
+                neighborhoods = _neighborhoodRepo.GetAll(),
+                walker = _walkerRepo.GetWalkerById(id)
+            };
+
+            return View(vm);
         }
 
         // POST: WalkerController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Walker walker)
         {
             try
             {
+                _walkerRepo.EditWalker(walker);
                 return RedirectToAction(nameof(Index));
             }
             catch

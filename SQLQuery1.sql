@@ -1,4 +1,4 @@
-﻿SELECT d.Id, d.Name, d.Breed, d.Notes, d.ImageUrl, d.OwnerId, o.Name 
-                FROM Dog d
-                LEFT JOIN Owner o ON o.id = d.OwnerId
-                WHERE OwnerId = 1
+﻿SELECT w.Id, w.[Name], w.ImageUrl, w.NeighborhoodId, n.Name AS NeighborhoodName
+                        FROM Walker w
+                    LEFT JOIN Neighborhood n ON n.Id = w.NeighborhoodId 
+                WHERE w.NeighborhoodId = 7
