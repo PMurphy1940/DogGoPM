@@ -1,11 +1,4 @@
-﻿SELECT w.Id,
-                               w.Date, 
-                               w.Duration, 
-                               d.Name AS DogName, 
-                               wa.Name AS WalkerName
-	                         FROM Walks w
-                          LEFT JOIN Dog d ON d.id = w.DogId
-                          Left Join Walker wa ON wa.id = w.WalkerId
-                          LEFT JOIN Owner o ON d.OwnerId = o.Id
-                        WHERE o.id = 1
-                      
+﻿SELECT d.Id, d.Name, d.Breed, d.Notes, d.ImageUrl, d.OwnerId, o.Name 
+                FROM Dog d
+                LEFT JOIN Owner o ON o.id = d.OwnerId
+                WHERE OwnerId = 1
